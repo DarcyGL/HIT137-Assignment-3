@@ -3,6 +3,9 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import cv2
 
+from image_processor import load_and_process_image, reassemble_image
+from game_logic import GameLogic
+
 
 class PuzzleGUI:
     """Main graphical interface for the image puzzle game."""
@@ -17,6 +20,11 @@ class PuzzleGUI:
         self.original_photo = None
         self.image_path = None
 
+        # Puzzle data
+        self.tiles = []
+        self.game = None
+        self.puzzle_photo = None
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -28,7 +36,7 @@ class PuzzleGUI:
         )
         title_label.pack(pady=15)
 
-        # Frame for the controls at the top
+        # Frame for controls
         control_frame = tk.Frame(self.root)
         control_frame.pack(pady=10)
 
@@ -167,7 +175,7 @@ class PuzzleGUI:
         instructions.pack(pady=10)
 
     def load_image(self):
-        """Let the player select an image and display it."""
+        """Load an image and create a new scrambled puzzle."""
 
         file_path = filedialog.askopenfilename(
             title="Choose an Image",
@@ -184,55 +192,123 @@ class PuzzleGUI:
             return
 
         try:
-            # Check that OpenCV can read the image
-            image = cv2.imread(file_path)
+            # Convert "3 x 3" into the integer 3
+            grid_size = int(self.grid_size.get().split()[0])
 
-            if image is None:
-                raise ValueError(
-                    "The selected file is not a valid image."
-                )
+            # Use image_processor.py to load, resize,
+            # divide and scramble the image
+            original, tiles = load_and_process_image(
+                file_path,
+                grid_size
+            )
 
             self.image_path = file_path
+            self.original_image = original
+            self.tiles = tiles
 
-            # OpenCV stores colours as BGR.
-            # Tkinter/Pillow needs RGB.
-            image = cv2.cvtColor(
-                image,
-                cv2.COLOR_BGR2RGB
-            )
+            # Start or reset the game logic
+            if self.game is None:
+                self.game = GameLogic(self.tiles)
+            else:
+                self.game.reset_game(self.tiles)
 
-            # Convert OpenCV image to Pillow
-            image = Image.fromarray(image)
+            # Display original and puzzle images
+            self.display_original(original)
+            self.display_puzzle()
 
-            # Keep the full original image
-            self.original_image = image.copy()
-
-            # Create a resized version for display
-            display_image = image.copy()
-            display_image.thumbnail((400, 400))
-
-            # Convert it into an image Tkinter can display
-            self.original_photo = ImageTk.PhotoImage(
-                display_image
-            )
-
-            # Clear any previous image
-            self.original_canvas.delete("all")
-
-            # Display the selected image
-            self.original_canvas.create_image(
-                200,
-                200,
-                image=self.original_photo,
-                anchor="center"
-            )
+            # Update score information
+            self.update_status()
 
         except Exception as error:
             messagebox.showerror(
                 "Image Error",
-                "The selected file could not be loaded.\n\n"
+                "The image could not be loaded.\n\n"
                 + str(error)
             )
+
+    def display_original(self, image):
+        """Display the original processed image."""
+
+        rgb_image = cv2.cvtColor(
+            image,
+            cv2.COLOR_BGR2RGB
+        )
+
+        pil_image = Image.fromarray(rgb_image)
+        pil_image.thumbnail((400, 400))
+
+        self.original_photo = ImageTk.PhotoImage(
+            pil_image
+        )
+
+        self.original_canvas.delete("all")
+
+        self.original_canvas.create_image(
+            200,
+            200,
+            image=self.original_photo,
+            anchor="center"
+        )
+
+    def display_puzzle(self):
+        """Reassemble and display the current puzzle."""
+
+        if not self.tiles:
+            return
+
+        grid_size = int(
+            self.grid_size.get().split()[0]
+        )
+
+        puzzle_image = reassemble_image(
+            self.tiles,
+            grid_size
+        )
+
+        rgb_image = cv2.cvtColor(
+            puzzle_image,
+            cv2.COLOR_BGR2RGB
+        )
+
+        pil_image = Image.fromarray(rgb_image)
+        pil_image.thumbnail((400, 400))
+
+        self.puzzle_photo = ImageTk.PhotoImage(
+            pil_image
+        )
+
+        self.puzzle_canvas.delete("all")
+
+        self.puzzle_canvas.create_image(
+            200,
+            200,
+            image=self.puzzle_photo,
+            anchor="center"
+        )
+
+    def update_status(self):
+        """Update moves, incorrect tiles and hints."""
+
+        if self.game is None:
+            return
+
+        self.moves_label.config(
+            text=f"Moves: {self.game.moves}"
+        )
+
+        self.incorrect_label.config(
+            text=(
+                "Tiles Incorrect: "
+                f"{self.game.count_incorrect_tiles()}"
+            )
+        )
+
+        self.hints_label.config(
+            text=(
+                "Hints Remaining: "
+                f"{self.game.hints_remaining()}"
+            )
+        )
 
 
 def main():
