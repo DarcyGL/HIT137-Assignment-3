@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog, messagebox
+from PIL import Image, ImageTk
+import cv2
 
 
 class PuzzleGUI:
@@ -9,6 +11,11 @@ class PuzzleGUI:
         self.root = root
         self.root.title("Image Puzzle Game")
         self.root.geometry("1100x700")
+
+        # Stores the image currently being used
+        self.original_image = None
+        self.original_photo = None
+        self.image_path = None
 
         self.create_widgets()
 
@@ -48,7 +55,8 @@ class PuzzleGUI:
         self.load_button = tk.Button(
             control_frame,
             text="Load Image",
-            width=12
+            width=12,
+            command=self.load_image
         )
         self.load_button.grid(row=0, column=2, padx=10)
 
@@ -95,11 +103,19 @@ class PuzzleGUI:
 
         # Area containing both images
         image_frame = tk.Frame(self.root)
-        image_frame.pack(expand=True, fill="both", padx=20, pady=10)
+        image_frame.pack(
+            expand=True,
+            fill="both",
+            padx=20,
+            pady=10
+        )
 
         # Original image side
         original_frame = tk.Frame(image_frame)
-        original_frame.pack(side="left", expand=True)
+        original_frame.pack(
+            side="left",
+            expand=True
+        )
 
         original_label = tk.Label(
             original_frame,
@@ -118,7 +134,10 @@ class PuzzleGUI:
 
         # Puzzle image side
         puzzle_frame = tk.Frame(image_frame)
-        puzzle_frame.pack(side="right", expand=True)
+        puzzle_frame.pack(
+            side="right",
+            expand=True
+        )
 
         puzzle_label = tk.Label(
             puzzle_frame,
@@ -146,6 +165,74 @@ class PuzzleGUI:
             font=("Arial", 10)
         )
         instructions.pack(pady=10)
+
+    def load_image(self):
+        """Let the player select an image and display it."""
+
+        file_path = filedialog.askopenfilename(
+            title="Choose an Image",
+            filetypes=[
+                ("Image Files", "*.jpg *.jpeg *.png *.bmp"),
+                ("JPEG Files", "*.jpg *.jpeg"),
+                ("PNG Files", "*.png"),
+                ("BMP Files", "*.bmp")
+            ]
+        )
+
+        # If the player presses Cancel, do nothing
+        if not file_path:
+            return
+
+        try:
+            # Check that OpenCV can read the image
+            image = cv2.imread(file_path)
+
+            if image is None:
+                raise ValueError(
+                    "The selected file is not a valid image."
+                )
+
+            self.image_path = file_path
+
+            # OpenCV stores colours as BGR.
+            # Tkinter/Pillow needs RGB.
+            image = cv2.cvtColor(
+                image,
+                cv2.COLOR_BGR2RGB
+            )
+
+            # Convert OpenCV image to Pillow
+            image = Image.fromarray(image)
+
+            # Keep the full original image
+            self.original_image = image.copy()
+
+            # Create a resized version for display
+            display_image = image.copy()
+            display_image.thumbnail((400, 400))
+
+            # Convert it into an image Tkinter can display
+            self.original_photo = ImageTk.PhotoImage(
+                display_image
+            )
+
+            # Clear any previous image
+            self.original_canvas.delete("all")
+
+            # Display the selected image
+            self.original_canvas.create_image(
+                200,
+                200,
+                image=self.original_photo,
+                anchor="center"
+            )
+
+        except Exception as error:
+            messagebox.showerror(
+                "Image Error",
+                "The selected file could not be loaded.\n\n"
+                + str(error)
+            )
 
 
 def main():
