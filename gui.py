@@ -216,16 +216,9 @@ class PuzzleGUI:
                 ("All Files", "*.*")
             ]
         )
-<<<<<<< HEAD
-
-        print("Selected file:", file_path)
 
         if not file_path:
             return
-=======
-        
-        print("Selected file:", file_path)
->>>>>>> ebe1af6 (Final integration and testing fixes)
 
         if not file_path:
             return
