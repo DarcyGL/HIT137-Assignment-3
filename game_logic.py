@@ -61,16 +61,16 @@ class GameLogic:
     def solve_puzzle(self):
         for tile in self.tiles:
 
-        if tile.flipped_h:
+            if tile.flipped_h:
             tile.flip_horizontal()
 
-        if tile.flipped_v:
+            if tile.flipped_v:
             tile.flip_vertical()
 
-        while tile.rotation % 360 != 0:
+            while tile.rotation % 360 != 0:
             tile.rotate_90()
 
-        tile.current_position = tile.original_position
+            tile.current_position = tile.original_position
 
     self.moves = 0
     self.game_finished = True
