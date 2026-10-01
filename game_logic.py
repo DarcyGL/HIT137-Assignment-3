@@ -59,7 +59,7 @@ class GameLogic:
 
 
     def solve_puzzle(self):
-    for tile in self.tiles:
+        for tile in self.tiles:
 
         if tile.flipped_h:
             tile.flip_horizontal()
