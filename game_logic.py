@@ -72,8 +72,8 @@ class GameLogic:
 
             tile.current_position = tile.original_position
 
-    self.moves = 0
-    self.game_finished = True
+        self.moves = 0
+        self.game_finished = True
 
     def reset_game(self, tiles):
         self.tiles = tiles
