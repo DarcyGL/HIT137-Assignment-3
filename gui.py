@@ -233,9 +233,6 @@ class PuzzleGUI:
                 grid_size
             )
 
-            print("Loaded image successfully")
-            print("Original shape:", original.shape)
-            print("Tiles:", len(tiles))
 
             self.image_path = file_path
             self.original_image = original
@@ -249,15 +246,11 @@ class PuzzleGUI:
             else:
                 self.game.reset_game(self.tiles)
 
-            print("About to display images")
             self.display_original()
-            print("Original display complete")
 
             self.display_puzzle()
-            print("Puzzle display complete")
 
             self.update_status()
-            print("Image display finished")
 
         except Exception as error:
             messagebox.showerror(
