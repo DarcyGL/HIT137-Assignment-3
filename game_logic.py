@@ -57,14 +57,23 @@ class GameLogic:
     def hints_remaining(self):
         return self.max_hints - self.hints_used
 
-    def solve_puzzle(self):
-        for tile in self.tiles:
-            tile.current_position = tile.original_position
-            tile.rotation = 0
-            tile.flipped = False
 
-        self.moves = 0
-        self.game_finished = True
+    def solve_puzzle(self):
+    for tile in self.tiles:
+
+        if tile.flipped_h:
+            tile.flip_horizontal()
+
+        if tile.flipped_v:
+            tile.flip_vertical()
+
+        while tile.rotation % 360 != 0:
+            tile.rotate_90()
+
+        tile.current_position = tile.original_position
+
+    self.moves = 0
+    self.game_finished = True
 
     def reset_game(self, tiles):
         self.tiles = tiles
