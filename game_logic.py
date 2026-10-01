@@ -62,13 +62,13 @@ class GameLogic:
         for tile in self.tiles:
 
             if tile.flipped_h:
-            tile.flip_horizontal()
+                tile.flip_horizontal()
 
             if tile.flipped_v:
-            tile.flip_vertical()
+                tile.flip_vertical()
 
             while tile.rotation % 360 != 0:
-            tile.rotate_90()
+                tile.rotate_90()
 
             tile.current_position = tile.original_position
 
