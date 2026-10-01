@@ -206,15 +206,18 @@ class PuzzleGUI:
     def load_image(self):
         """Load an image and create a new puzzle."""
 
-        file_path = filedialog.askopenfilename(
-            title="Choose an Image",
-            filetypes=[
-                ("Image Files", "*.jpg *.jpeg *.png *.bmp"),
-                ("JPEG Files", "*.jpg *.jpeg"),
-                ("PNG Files", "*.png"),
-                ("BMP Files", "*.bmp")
-            ]
-        )
+file_path = filedialog.askopenfilename(
+    title="Choose an Image",
+    filetypes=[
+        ("PNG Files", "*.png"),
+        ("JPEG Files", "*.jpg"),
+        ("JPEG Files", "*.jpeg"),
+        ("BMP Files", "*.bmp"),
+        ("All Files", "*.*")
+    ]
+)
+
+print("Selected file:", file_path)
 
         if not file_path:
             return
