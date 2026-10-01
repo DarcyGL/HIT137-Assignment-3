@@ -216,11 +216,16 @@ class PuzzleGUI:
                 ("All Files", "*.*")
             ]
         )
+<<<<<<< HEAD
 
         print("Selected file:", file_path)
 
         if not file_path:
             return
+=======
+        
+        print("Selected file:", file_path)
+>>>>>>> ebe1af6 (Final integration and testing fixes)
 
         if not file_path:
             return
@@ -235,6 +240,10 @@ class PuzzleGUI:
                 grid_size
             )
 
+            print("Loaded image successfully")
+            print("Original shape:", original.shape)
+            print("Tiles:", len(tiles))
+
             self.image_path = file_path
             self.original_image = original
             self.tiles = tiles
@@ -247,9 +256,15 @@ class PuzzleGUI:
             else:
                 self.game.reset_game(self.tiles)
 
+            print("About to display images")
             self.display_original()
+            print("Original display complete")
+
             self.display_puzzle()
+            print("Puzzle display complete")
+
             self.update_status()
+            print("Image display finished")
 
         except Exception as error:
             messagebox.showerror(
