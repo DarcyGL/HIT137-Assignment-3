@@ -57,7 +57,6 @@ class GameLogic:
     def hints_remaining(self):
         return self.max_hints - self.hints_used
 
-
     def solve_puzzle(self):
         for tile in self.tiles:
 
@@ -79,4 +78,3 @@ class GameLogic:
         self.tiles = tiles
         self.moves = 0
         self.hints_used = 0
-        self.game_finished = False
