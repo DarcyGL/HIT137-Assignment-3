@@ -76,19 +76,36 @@ def load_image(filepath: str) -> np.ndarray:
 
 
 def resize_and_pad(image: np.ndarray, grid_size: int, max_dim: int = 600) -> np.ndarray:
-    """Resizes the image to fit within max_dim x max_dim, then crops it so
-    both dimensions divide evenly by grid_size."""
+    """Resize and pad the image to a square so tiles can rotate correctly."""
+
     h, w = image.shape[:2]
 
+    # Resize image to fit within max_dim x max_dim
     scale = min(max_dim / w, max_dim / h)
-    new_w, new_h = int(w * scale), int(h * scale)
+
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+
     resized = cv2.resize(image, (new_w, new_h))
 
-    crop_h = (new_h // grid_size) * grid_size
-    crop_w = (new_w // grid_size) * grid_size
-    cropped = resized[0:crop_h, 0:crop_w]
+    # Pad image to make it square
+    top = (max_dim - new_h) // 2
+    bottom = max_dim - new_h - top
 
-    return cropped
+    left = (max_dim - new_w) // 2
+    right = max_dim - new_w - left
+
+    padded = cv2.copyMakeBorder(
+        resized,
+        top,
+        bottom,
+        left,
+        right,
+        cv2.BORDER_CONSTANT,
+        value=(0, 0, 0)
+    )
+
+    return padded
 
 
 def slice_into_tiles(image: np.ndarray, grid_size: int) -> list:
